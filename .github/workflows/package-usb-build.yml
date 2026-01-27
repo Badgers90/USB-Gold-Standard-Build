@@ -1,1 +1,28 @@
 
+name: Build USB Gold Package
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Create USB Gold Build ZIP
+      run: |
+        mkdir output
+        Compress-Archive -Path * -DestinationPath output/USB_GOLD_BUILD.zip -Force
+
+    - name: Upload ZIP as workflow artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: USB_GOLD_BUILD
+        path: output/USB_GOLD_BUILD.zip
+
