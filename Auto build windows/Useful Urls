@@ -1,0 +1,4 @@
+Tool 
+https://schneegans.de/windows/unattend-generator/?SystemScript0=%24uri%20%3D%20%5Buri%5D%3A%3Anew%28%20%27https%3A%2F%2Fdl.google.com%2Fchrome%2Finstall%2Fchrome_installer.exe%27%20%29%3B%0D%0A%24file%20%3D%20%22%24env%3ATEMP%5C%7B0%7D%22%20-f%20%24uri.Segments%5B-1%5D%3B%0D%0A%5BSystem.Net.WebClient%5D%3A%3Anew%28%29.DownloadFile%28%20%24uri%2C%20%24file%20%29%3B%0D%0AStart-Process%20-FilePath%20%24file%20-ArgumentList%20%27%2Fsilent%20%2Finstall%27%20-Wait%3B%0D%0ARemove-Item%20-LiteralPath%20%24file%20-ErrorAction%20%27SilentlyContinue%27%3B&SystemScriptType0=Ps1
+Sample scripts https://schneegans.de/windows/unattend-generator/samples/
+Create windows without software https://schneegans.de/windows/installation-media/
