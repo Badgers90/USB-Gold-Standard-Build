@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<unattend xmlns="urn:schemas-microsoft-com:unattend" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State">
+
+  <settings pass="oobeSystem">
+    <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+      <FirstLogonCommands>
+        <SynchronousCommand wcm:action="add">
+          <Order>1</Order>
+          <CommandLine>powershell.exe -ExecutionPolicy Bypass -File C:\Windows\Setup\Scripts\FirstLogon.ps1</CommandLine>
+        </SynchronousCommand>
+      </FirstLogonCommands>
+    </component>
+  </settings>
+
+  <Extensions xmlns="https://schneegans.de/windows/unattend-generator/">
+
+    <File path="C:\Windows\Setup\Scripts\FirstLogon.ps1">
+Start-Transcript -Path "C:\Windows\Temp\FirstLogon.log"
+
+& 'C:\Windows\Setup\Scripts\Install-Drivers.ps1'
+& 'C:\Windows\Setup\Scripts\Install-GPU.ps1'
+
+Stop-Transcript
+    </File>
+
+    <File path="C:\Windows\Setup\Scripts\Install-Drivers.ps1">
+Start-Transcript -Path "C:\Windows\Temp\DriverInstall.log"
+
+$drive = Get-PSDrive -PSProvider FileSystem |
+Where-Object { Test-Path "$($_.Root)Drivers" } |
+Select-Object -ExpandProperty Root -First 1
+
+if (-not $drive) { Stop-Transcript; return }
+
+$basePath = "$drive\Drivers"
+$genericPath = "$basePath\Generic"
+
+pnputil /add-driver "$genericPath\*.inf" /subdirs /install | Out-Null
+
+UsoClient StartScan
+Start-Sleep 5
+UsoClient StartDownload
+Start-Sleep 5
+UsoClient StartInstall
+
+Stop-Transcript
+    </File>
+
+    <File path="C:\Windows\Setup\Scripts\Install-GPU.ps1">
+Start-Transcript -Path "C:\Windows\Temp\GPU.log"
+
+Start-Sleep 30
+
+$winget = Get-Command winget -ErrorAction SilentlyContinue
+
+if ($winget) {
+    winget install -e --id Nvidia.NvidiaApp --silent --accept-package-agreements --accept-source-agreements
+    winget install -e --id AMD.Software --silent --accept-package-agreements --accept-source-agreements
+    winget install -e --id Intel.GraphicsCommandCenter --silent --accept-package-agreements --accept-source-agreements
+}
+
+Stop-Transcript
+    </File>
+
+  </Extensions>
+
+</unattend>
